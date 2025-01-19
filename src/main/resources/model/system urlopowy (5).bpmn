@@ -26,7 +26,26 @@
       "id": "Field_0jippso"
     },
     {
-      "text": "Podaj zakres dat",
+      "text": "#### Podaj adres email",
+      "type": "text",
+      "layout": {
+        "row": "Row_1vz8rbj",
+        "columns": null
+      },
+      "id": "Field_0e4xcqu"
+    },
+    {
+      "label": "Twój adres e-mail",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1o214kq",
+        "columns": null
+      },
+      "id": "Field_1wzd5bk",
+      "key": "email"
+    },
+    {
+      "text": "#### Podaj zakres dat",
       "type": "text",
       "layout": {
         "row": "Row_0higxen",
@@ -141,7 +160,10 @@
     </bpmn:sequenceFlow>
     <bpmn:sendTask id="Activity_0ci990r" name="Wyślij odmowę urlopu">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="void" />
+        <zeebe:taskDefinition type="send-mail" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=email" target="email" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1v1q5t3</bpmn:incoming>
       <bpmn:outgoing>Flow_0kqvmr0</bpmn:outgoing>
@@ -161,10 +183,11 @@
     <bpmn:sequenceFlow id="Flow_121omf4" sourceRef="Activity_0ttf2vl" targetRef="Gateway_1shub2i" />
     <bpmn:serviceTask id="Activity_0ttf2vl" name="Rozpatrz wniosek o urlop wypoczynkowy">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="worker" />
+        <zeebe:taskDefinition type="consideration" />
         <zeebe:ioMapping>
           <zeebe:input source="=startDate" target="startDate" />
           <zeebe:input source="=endDate" target="endDate" />
+          <zeebe:input source="=email" target="email" />
           <zeebe:output source="=decision" target="decision" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
@@ -180,6 +203,7 @@
         <zeebe:ioMapping>
           <zeebe:output source="=startDate" target="startDate" />
           <zeebe:output source="=endDate" target="endDate" />
+          <zeebe:output source="=email" target="email" />
         </zeebe:ioMapping>
         <zeebe:formDefinition formKey="camunda-forms:bpmn:UserTaskForm_2a6q4g9" />
       </bpmn:extensionElements>
