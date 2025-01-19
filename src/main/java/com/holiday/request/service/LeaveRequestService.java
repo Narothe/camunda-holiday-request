@@ -5,14 +5,12 @@ import com.holiday.request.model.Employee;
 import com.holiday.request.model.LeaveRequest;
 import com.holiday.request.repository.EmployeeRepository;
 import com.holiday.request.repository.LeaveRequestRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 @Service
 @RequiredArgsConstructor
-@AllArgsConstructor
 public class LeaveRequestService {
 
     private final LeaveRequestRepository leaveRequestRepository;
