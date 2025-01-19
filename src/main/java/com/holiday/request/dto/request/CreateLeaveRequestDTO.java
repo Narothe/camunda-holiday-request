@@ -16,5 +16,4 @@ public class CreateLeaveRequestDTO {
     private int employeeId;
     private Date startDate;
     private Date endDate;
-    private LeaveStatus status;
 }

@@ -1,6 +1,7 @@
 package com.holiday.request.service;
 
 import com.holiday.request.dto.request.CreateLeaveRequestDTO;
+import com.holiday.request.enums.LeaveStatus;
 import com.holiday.request.model.Employee;
 import com.holiday.request.model.LeaveRequest;
 import com.holiday.request.repository.EmployeeRepository;
@@ -24,10 +25,9 @@ public class LeaveRequestService {
                 .employee(employee)
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
-                .status(requestDTO.getStatus())
+                .status(LeaveStatus.PENDING)
                 .build();
 
-        // Zapisz zgłoszenie w bazie danych
         return leaveRequestRepository.save(leaveRequest);
     }
 }
