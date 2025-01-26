@@ -1,5 +1,6 @@
 package com.holiday.request.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class Employee {
     @Column(name = "email")
     private String email;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LeaveRequest> leaveRequests;
 }
