@@ -11,26 +11,24 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender emailSender;
-    private final String SUBJECT = "Odmowa urlopu";
-    private final String BODY = "Witam, niestety nie możemy zatwierdzić Twojego urlopu w tym terminie.";
+
 
 
     @Value("${spring.mail.username}")
     private String sender;
 
-    public void sendEmail(String toEmail) {
+    public void sendEmail(String toEmail, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setFrom(sender);
         message.setTo(toEmail);
-        message.setSubject(SUBJECT);
-        message.setText(BODY);
+        message.setSubject(subject);
+        message.setText(body);
         try {
             emailSender.send(message);
 
         } catch(Exception e) {
             System.out.println(e);
         }
-        System.out.println("dziala");
     }
 }
