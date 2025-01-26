@@ -34,4 +34,9 @@ public class EmployeeController {
         List<EmployeeDTO> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
+
+    @PostMapping("/email")
+    public void SendEmail() {
+        employeeService.sendEmail();
+    }
 }
