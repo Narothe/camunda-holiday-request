@@ -37,8 +37,8 @@ public class LeaveRequestService {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
 
-        Date startDate = Date.from(requestDTO.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date endDate = Date.from(requestDTO.getEndDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date startDate = Date.from(requestDTO.getStartDate().atStartOfDay(ZoneId.of("UTC")).toInstant());
+        Date endDate = Date.from(requestDTO.getEndDate().atTime(23, 59, 59).atZone(ZoneId.of("UTC")).toInstant());
 
         LeaveRequest leaveRequest = LeaveRequest.builder()
                 .employee(employee)
@@ -85,10 +85,10 @@ public class LeaveRequestService {
             LocalDate startDate = leaveRequest.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate endDate = leaveRequest.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-            List<Day> daysInRange = dayRepository.findByDateBetween(
-                    Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-                    Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-            );
+            Date rangeStartDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Date rangeEndDate = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            List<Day> daysInRange = dayRepository.findByDateBetween(rangeStartDate, rangeEndDate);
 
             if (leaveStatus == LeaveStatus.APPROVED) {
                 daysInRange.forEach(day -> day.setAvailable(false));
@@ -165,15 +165,15 @@ public class LeaveRequestService {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
 
-        leaveRequest.setStartDate(Date.from(newStartDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        leaveRequest.setEndDate(Date.from(newEndDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        leaveRequest.setStatus(LeaveStatus.APPROVED);
-        LeaveRequest updatedLeaveRequest = leaveRequestRepository.save(leaveRequest);
+        Date startDate = Date.from(newStartDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(newEndDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        List<Day> daysInRange = dayRepository.findByDateBetween(
-                Date.from(newStartDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-                Date.from(newEndDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        );
+        leaveRequest.setStartDate(startDate);
+        leaveRequest.setEndDate(endDate);
+        leaveRequest.setStatus(LeaveStatus.APPROVED);
+
+        LeaveRequest updatedLeaveRequest = leaveRequestRepository.save(leaveRequest);
+        List<Day> daysInRange = dayRepository.findByDateBetween(startDate, endDate);
 
         daysInRange.forEach(day -> day.setAvailable(false));
         dayRepository.saveAll(daysInRange);
