@@ -46,7 +46,7 @@ public class EmployeeService {
                 .email(employee.getEmail())
                 .build();
     }
-    public void sendEmail() {
-        mailService.sendEmail("35678@student.atar.edu.pl");
+    public void sendEmail(String email) {
+        mailService.sendEmail(email, "subject", "body");
     }
 }

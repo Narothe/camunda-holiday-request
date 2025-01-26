@@ -35,8 +35,8 @@ public class EmployeeController {
         return ResponseEntity.ok(employees);
     }
 
-    @PostMapping("/email")
-    public void SendEmail() {
-        employeeService.sendEmail();
+    @PostMapping("/{email}")
+    public void SendEmail(@PathVariable String email) {
+        employeeService.sendEmail(email);
     }
 }
