@@ -3,13 +3,16 @@ package com.holiday.request.service;
 import com.holiday.request.dto.model.LeaveRequestDTO;
 import com.holiday.request.dto.request.CreateLeaveRequestDTO;
 import com.holiday.request.enums.LeaveStatus;
+import com.holiday.request.model.Day;
 import com.holiday.request.model.Employee;
 import com.holiday.request.model.LeaveRequest;
+import com.holiday.request.repository.DayRepository;
 import com.holiday.request.repository.EmployeeRepository;
 import com.holiday.request.repository.LeaveRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +25,7 @@ public class LeaveRequestService {
 
     private final LeaveRequestRepository leaveRequestRepository;
     private final EmployeeRepository employeeRepository;
+    private final DayRepository dayRepository;
 
     public LeaveRequest create(CreateLeaveRequestDTO requestDTO) {
         Employee employee = employeeRepository.findById(requestDTO.getEmployeeId())
@@ -91,4 +95,17 @@ public class LeaveRequestService {
         return convertToDTO(updatedLeaveRequest);
     }
 
+    public boolean checkLeaveRequest(LocalDate startDate, LocalDate endDate) {
+
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+
+        List<Day> daysInRange = dayRepository.findByDateBetween(
+                Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        );
+
+        return daysInRange.stream().allMatch(Day::isAvailable);
+    }
 }
