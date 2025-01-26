@@ -81,6 +81,24 @@ public class LeaveRequestService {
             throw new IllegalArgumentException("Invalid status: " + status);
         }
 
+        if (leaveRequest.getStatus() != leaveStatus) {
+            LocalDate startDate = leaveRequest.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate endDate = leaveRequest.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            List<Day> daysInRange = dayRepository.findByDateBetween(
+                    Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                    Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+            );
+
+            if (leaveStatus == LeaveStatus.APPROVED) {
+                daysInRange.forEach(day -> day.setAvailable(false));
+            } else if (leaveStatus == LeaveStatus.REJECTED) {
+                daysInRange.forEach(day -> day.setAvailable(true));
+            }
+
+            dayRepository.saveAll(daysInRange);
+        }
+
         leaveRequest.setStatus(leaveStatus);
         LeaveRequest updatedLeaveRequest = leaveRequestRepository.save(leaveRequest);
 
@@ -103,13 +121,16 @@ public class LeaveRequestService {
 
     public List<String> findNextAvailableDates(LocalDate startDate, LocalDate endDate) {
         int daysInRange = (int) (endDate.toEpochDay() - startDate.toEpochDay() + 1);
-
         List<Day> allDays = dayRepository.findAllByOrderByDateAsc();
+
+        List<Day> futureDays = allDays.stream()
+                .filter(day -> !day.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(startDate))
+                .collect(Collectors.toList());
 
         List<String> result = new ArrayList<>();
         int startIndex = 0;
 
-        List<DayDto> dayDtos = allDays.stream()
+        List<DayDto> dayDtos = futureDays.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
