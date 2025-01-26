@@ -157,6 +157,30 @@ public class LeaveRequestService {
         return result;
     }
 
+    public LeaveRequestDTO changeDatesAndApprove(int id, LocalDate newStartDate, LocalDate newEndDate) {
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Leave request not found with ID: " + id));
+
+        if (newEndDate.isBefore(newStartDate)) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+
+        leaveRequest.setStartDate(Date.from(newStartDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        leaveRequest.setEndDate(Date.from(newEndDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        leaveRequest.setStatus(LeaveStatus.APPROVED);
+        LeaveRequest updatedLeaveRequest = leaveRequestRepository.save(leaveRequest);
+
+        List<Day> daysInRange = dayRepository.findByDateBetween(
+                Date.from(newStartDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                Date.from(newEndDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        );
+
+        daysInRange.forEach(day -> day.setAvailable(false));
+        dayRepository.saveAll(daysInRange);
+
+        return convertToDTO(updatedLeaveRequest);
+    }
+
     private LeaveRequestDTO convertToDTO(LeaveRequest leaveRequest) {
         return LeaveRequestDTO.builder()
                 .id(leaveRequest.getId())

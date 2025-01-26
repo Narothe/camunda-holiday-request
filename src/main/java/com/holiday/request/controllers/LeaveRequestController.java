@@ -59,4 +59,12 @@ public class LeaveRequestController {
         List<String> availableDates = leaveRequestService.findNextAvailableDates(start, end);
         return ResponseEntity.ok(availableDates);
     }
+
+    @PatchMapping("/change-dates-and-approve/{id}")
+    public ResponseEntity<LeaveRequestDTO> changeDatesAndApprove(@PathVariable int id, @RequestParam String startDate, @RequestParam String endDate) {
+        LocalDate newStartDate = LocalDate.parse(startDate);
+        LocalDate newEndDate = LocalDate.parse(endDate);
+        LeaveRequestDTO updatedLeaveRequest = leaveRequestService.changeDatesAndApprove(id, newStartDate, newEndDate);
+        return ResponseEntity.ok(updatedLeaveRequest);
+    }
 }
