@@ -36,6 +36,7 @@ public class ManagerWorker {
             var dates = leaveRequestService.findNextAvailableDates(date, date2);
             if (dates.isEmpty()){
                 jobResultVariables.put("decision", 0);
+
             } else {
                 jobResultVariables.put("decision", 2);
                 jobResultVariables.put("availableDates", dates);
@@ -44,6 +45,5 @@ public class ManagerWorker {
         return jobResultVariables;
 
     }
-
 
 }
