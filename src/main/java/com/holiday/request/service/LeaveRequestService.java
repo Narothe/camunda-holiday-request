@@ -1,5 +1,6 @@
 package com.holiday.request.service;
 
+import com.holiday.request.dto.model.DayDto;
 import com.holiday.request.dto.model.LeaveRequestDTO;
 import com.holiday.request.dto.request.CreateLeaveRequestDTO;
 import com.holiday.request.enums.LeaveStatus;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,16 +70,6 @@ public class LeaveRequestService {
                 .collect(Collectors.toList());
     }
 
-    private LeaveRequestDTO convertToDTO(LeaveRequest leaveRequest) {
-        return LeaveRequestDTO.builder()
-                .id(leaveRequest.getId())
-                .employeeId(leaveRequest.getEmployee().getId())
-                .startDate(leaveRequest.getStartDate())
-                .endDate(leaveRequest.getEndDate())
-                .status(leaveRequest.getStatus())
-                .build();
-    }
-
     public LeaveRequestDTO updateLeaveRequestStatus(int id, String status) {
         LeaveRequest leaveRequest = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found with ID: " + id));
@@ -107,5 +99,58 @@ public class LeaveRequestService {
         );
 
         return daysInRange.stream().allMatch(Day::isAvailable);
+    }
+
+    public List<String> findNextAvailableDates(LocalDate startDate, LocalDate endDate) {
+        int daysInRange = (int) (endDate.toEpochDay() - startDate.toEpochDay() + 1);
+
+        List<Day> allDays = dayRepository.findAllByOrderByDateAsc();
+
+        List<String> result = new ArrayList<>();
+        int startIndex = 0;
+
+        List<DayDto> dayDtos = allDays.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        while (result.size() < 3 && startIndex < dayDtos.size()) {
+            List<DayDto> subList = dayDtos.stream()
+                    .skip(startIndex)
+                    .limit(daysInRange)
+                    .collect(Collectors.toList());
+
+            boolean allAvailable = subList.size() == daysInRange && subList.stream().allMatch(DayDto::isAvailable);
+
+            if (allAvailable) {
+                LocalDate rangeStart = subList.get(0).getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate rangeEnd = subList.get(subList.size() - 1).getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                result.add(rangeStart + " - " + rangeEnd);
+
+                startIndex += daysInRange;
+            } else {
+                startIndex++;
+            }
+        }
+
+        return result;
+    }
+
+    private LeaveRequestDTO convertToDTO(LeaveRequest leaveRequest) {
+        return LeaveRequestDTO.builder()
+                .id(leaveRequest.getId())
+                .employeeId(leaveRequest.getEmployee().getId())
+                .startDate(leaveRequest.getStartDate())
+                .endDate(leaveRequest.getEndDate())
+                .status(leaveRequest.getStatus())
+                .build();
+    }
+
+    private DayDto convertToDTO(Day day) {
+        return DayDto.builder()
+                .id(day.getId())
+                .date(day.getDate())
+                .available(day.isAvailable())
+                .build();
     }
 }

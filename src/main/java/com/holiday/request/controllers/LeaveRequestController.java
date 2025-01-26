@@ -51,4 +51,12 @@ public class LeaveRequestController {
         return ResponseEntity.ok(isAvailable);
     }
 
+    @GetMapping("/next-available-dates")
+    public ResponseEntity<List<String>> getNextAvailableDates(@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+
+        List<String> availableDates = leaveRequestService.findNextAvailableDates(start, end);
+        return ResponseEntity.ok(availableDates);
+    }
 }

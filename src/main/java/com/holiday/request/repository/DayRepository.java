@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface DayRepository extends JpaRepository<Day, Integer> {
     List<Day> findByDateBetween(Date startDate, Date endDate);
+    List<Day> findAllByOrderByDateAsc();
 }
