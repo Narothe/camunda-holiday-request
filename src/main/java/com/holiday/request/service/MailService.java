@@ -25,8 +25,12 @@ public class MailService {
         message.setTo(toEmail);
         message.setSubject(SUBJECT);
         message.setText(BODY);
+        try {
+            emailSender.send(message);
 
-        emailSender.send(message);
+        } catch(Exception e) {
+            System.out.println(e);
+        }
         System.out.println("dziala");
     }
 }

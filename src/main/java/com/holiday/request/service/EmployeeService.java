@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final MailService mailService;
 
     public EmployeeDTO addEmployee(CreateEmployeeDTO employeeDTO) {
         Employee employee = Employee.builder()
@@ -44,5 +45,8 @@ public class EmployeeService {
                 .name(employee.getName())
                 .email(employee.getEmail())
                 .build();
+    }
+    public void sendEmail() {
+        mailService.sendEmail("35678@student.atar.edu.pl");
     }
 }
