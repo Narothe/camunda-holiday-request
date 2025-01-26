@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -40,6 +41,14 @@ public class LeaveRequestController {
     public ResponseEntity<LeaveRequestDTO> updateLeaveRequestStatus(@PathVariable int id, @RequestParam String status) {
         LeaveRequestDTO updatedLeaveRequest = leaveRequestService.updateLeaveRequestStatus(id, status);
         return ResponseEntity.ok(updatedLeaveRequest);
+    }
+
+    @GetMapping("/check-leave-request")
+    public ResponseEntity<Boolean> checkLeaveRequest(@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        boolean isAvailable = leaveRequestService.checkLeaveRequest(start, end);
+        return ResponseEntity.ok(isAvailable);
     }
 
 }
